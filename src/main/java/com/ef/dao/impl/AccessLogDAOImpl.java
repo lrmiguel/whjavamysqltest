@@ -44,7 +44,6 @@ public class AccessLogDAOImpl implements AccessLogDAO {
             sqlQuery.executeUpdate();
         });
         tx.commit();
-        session.close();
     }
 
     @Override

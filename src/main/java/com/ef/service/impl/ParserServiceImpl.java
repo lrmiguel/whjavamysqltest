@@ -17,6 +17,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,12 +27,20 @@ public class ParserServiceImpl implements ParserService {
     private AccessLogDAO accessLogDAO;
 
     private List<AccessLogEntity> accessLogEntities;
+    private static final Logger LOGGER = Logger.getLogger(ParserServiceImpl.class.getName());;
 
     @Override
     public void parseFile(String pathToAccessLogFile) {
-        extractAccessLogs(pathToAccessLogFile);
+        if (pathToAccessLogFile == null)
+            return;
 
-//        accessLogDAO.persistBulk(accessLogEntities);
+        LOGGER.info("Starting parsing process");
+        extractAccessLogs(pathToAccessLogFile);
+        LOGGER.info("Terminating parsing process");
+
+        LOGGER.info("Inserting parsed objects into the database");
+        accessLogDAO.persistBulk(accessLogEntities);
+        LOGGER.info("Finished insertions");
     }
 
     private void extractAccessLogs(String pathToAccessLogFile) {

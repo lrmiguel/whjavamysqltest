@@ -42,10 +42,12 @@ public class Parser {
 
         List<String> ipsFromAccessLog = parserService.getIPsFromAccessLog(startDate, duration, threshold);
 
-        if (ipsFromAccessLog != null && !ipsFromAccessLog.isEmpty())
-            ipsFromAccessLog.forEach(ipFromAccessLog -> System.out.println("Output: " + ipFromAccessLog));
+        if (ipsFromAccessLog != null && !ipsFromAccessLog.isEmpty()) {
+            System.out.println("Retrieved IPs:");
+            ipsFromAccessLog.forEach(System.out::println);
+        }
         else
-            System.out.println("No data found for the required parameters");
+            System.out.println("No data found for the given parameters");
 
 
         weld.shutdown();
@@ -68,9 +70,9 @@ public class Parser {
     private static Options getOptions() {
         final Options options = new Options();
         options.addOption("a", ACCESS_LOG, true, "Path to file containing access log");
-        options.addOption("s", START_DATE, true, "Start date for the search");
-        options.addOption("d", DURATION, true, "Duration of the threshold from the start date");
-        options.addOption("t", THRESHOLD, true, "Filters data by the minimum requests threshold");
+        options.addRequiredOption("s", START_DATE, true, "Start date for the search");
+        options.addRequiredOption("d", DURATION, true, "Duration of the threshold from the start date");
+        options.addRequiredOption("t", THRESHOLD, true, "Filters data by the minimum requests threshold");
         return options;
     }
 

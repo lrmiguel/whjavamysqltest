@@ -3,13 +3,12 @@ package com.ef.model;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-@Table(name = "access_log", schema = "parser_db")
+@Table(name = "access_log", schema = "parser_db", indexes = {@Index(name = "ACCESS_DATETIME", columnList = "access_datetime")})
 @NamedQuery(name = AccessLogEntity.GET_ACCESS_LOGS_BY_DATETIME, query = "select a from AccessLogEntity a where a.accessDatetime between :startDate and :endDate")
 public class AccessLogEntity {
 
@@ -19,10 +18,10 @@ public class AccessLogEntity {
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
     @Column(name = "id", nullable = false)
-    private UUID id; // Not generating the by the database increases performance, since ORM tool won't fetch sequence from the db before inserts.
+    private UUID id; // Not generating id by the database increases performance, since ORM tool won't fetch sequence from the db before each insert.
 
     @Column(name = "access_datetime", nullable = false)
-    private ZonedDateTime accessDatetime;
+    private ZonedDateTime accessDatetime;//e
 
     @Column(name = "access_ip_address", nullable = false, length = 15)
     private String accessIpAddress;
