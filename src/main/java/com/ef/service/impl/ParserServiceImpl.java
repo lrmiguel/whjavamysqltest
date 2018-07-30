@@ -36,7 +36,7 @@ public class ParserServiceImpl implements ParserService {
 
         LOGGER.info("Starting parsing process");
         extractAccessLogs(pathToAccessLogFile);
-        LOGGER.info("Terminating parsing process");
+        LOGGER.info("Finishing parsing process");
 
         LOGGER.info("Inserting parsed objects into the database");
         accessLogDAO.persistBulk(accessLogEntities);

@@ -12,17 +12,58 @@ import java.util.List;
 
 public class Parser {
 
-    public static final String ACCESS_LOG = "accesslog";
-    public static final String START_DATE = "startDate";
-    public static final String DURATION = "duration";
-    public static final String THRESHOLD = "threshold";
+    private static final String ACCESS_LOG = "accesslog";
+    private static final String START_DATE = "startDate";
+    private static final String DURATION = "duration";
+    private static final String THRESHOLD = "threshold";
 
     private static Weld weld;
+    private static String accessLog;
+    private static LocalDateTime startDate;
+    private static DurationEnum duration;
+    private static int threshold;
 
     public static void main(String[] args) {
-
-        CommandLineParser gnuParser = new DefaultParser();
+        CommandLineParser helperParser = new DefaultParser();
         CommandLine cmd = null;
+
+        try {
+            cmd = helperParser.parse(new Options().addOption("h", "help", false, "Gets information about usage"), args, false);
+        } catch (ParseException e) {
+            // Does nothing
+        }
+
+        if (cmd != null && cmd.getOptions().length == 1 && cmd.hasOption("help")) {
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("help", getOptions());
+            System.exit(0);
+        } else {
+            getInputsFromConsole(args);
+
+            ParserService parserService = getParserService();// CDI - Weld SE
+
+            parserService.parseFile(accessLog);
+
+            getIPsBasedOnParams(parserService);
+
+            weld.shutdown();
+            System.exit(0);
+        }
+    }
+
+    private static void getIPsBasedOnParams(ParserService parserService) {
+        List<String> ipsFromAccessLog = parserService.getIPsFromAccessLog(startDate, duration, threshold);
+
+        if (ipsFromAccessLog != null && !ipsFromAccessLog.isEmpty()) {
+            System.out.println("Retrieved IPs:");
+            ipsFromAccessLog.forEach(System.out::println);
+        } else
+            System.out.println("No data found for the given parameters");
+    }
+
+    private static void getInputsFromConsole(String[] args) {
+        CommandLine cmd;CommandLineParser gnuParser = new DefaultParser();
+        cmd = null;
         try {
             cmd = gnuParser.parse(getOptions(), args, false);
         } catch (ParseException e) {
@@ -32,26 +73,10 @@ public class Parser {
         if (cmd.getOptions().length < 1)
             exitWithError();
 
-        String accessLog = cmd.getOptionValue(ACCESS_LOG);
-        LocalDateTime startDate = LocalDateTime.parse(cmd.getOptionValue(START_DATE), DateTimeFormatter.ofPattern("yyyy-MM-dd.HH:mm:ss"));
-        DurationEnum duration = DurationEnum.getEnumByDurationType(cmd.getOptionValue(DURATION));
-        int threshold = Integer.valueOf(cmd.getOptionValue(THRESHOLD));
-
-        ParserService parserService = getParserService();
-        parserService.parseFile(accessLog);
-
-        List<String> ipsFromAccessLog = parserService.getIPsFromAccessLog(startDate, duration, threshold);
-
-        if (ipsFromAccessLog != null && !ipsFromAccessLog.isEmpty()) {
-            System.out.println("Retrieved IPs:");
-            ipsFromAccessLog.forEach(System.out::println);
-        }
-        else
-            System.out.println("No data found for the given parameters");
-
-
-        weld.shutdown();
-        System.exit(0);
+        accessLog = cmd.getOptionValue(ACCESS_LOG);
+        startDate = LocalDateTime.parse(cmd.getOptionValue(START_DATE), DateTimeFormatter.ofPattern("yyyy-MM-dd.HH:mm:ss"));
+        duration = DurationEnum.getEnumByDurationType(cmd.getOptionValue(DURATION));
+        threshold = Integer.valueOf(cmd.getOptionValue(THRESHOLD));
     }
 
     private static ParserService getParserService() {
@@ -73,6 +98,7 @@ public class Parser {
         options.addRequiredOption("s", START_DATE, true, "Start date for the search");
         options.addRequiredOption("d", DURATION, true, "Duration of the threshold from the start date");
         options.addRequiredOption("t", THRESHOLD, true, "Filters data by the minimum requests threshold");
+
         return options;
     }
 
