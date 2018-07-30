@@ -1,0 +1,33 @@
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
+http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"
+             version="2.1">
+    <persistence-unit name="parserPU">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <properties>
+            <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost/parser_db?useSSL=false" />
+            <property name="javax.persistence.jdbc.user" value="root" />
+            <property name="javax.persistence.jdbc.password" value="12345" />
+            <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver" />
+
+            <!-- Performance tuning -->
+            <property name="hibernate.order_inserts" value="true"/>
+            <property name="hibernate.order_updates" value="true"/>
+            <property name="hibernate.jdbc.batch_size" value="10"/>
+
+            <!-- Creates the schema, destroying previous data for sake of simplicity -->
+            <!--<property name="hibernate.hbm2ddl.auto" value="create" />-->
+
+            <!-- Connection pool -->
+            <property name="hibernate.c3p0.min_size" value="80"/>
+            <property name="hibernate.c3p0.max_size" value="150"/>
+            <property name="hibernate.c3p0.timeout" value="300"/>
+            <property name="hibernate.c3p0.max_statements" value="50"/>
+            <property name="hibernate.c3p0.idle_test_period" value="3000"/>
+
+            <!-- Debug -->
+            <!--<property name="hibernate.show_sql" value="true" />
+            <property name="hibernate.format_sql" value="true" />-->
+        </properties>
+    </persistence-unit>
+</persistence>
